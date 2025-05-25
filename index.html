@@ -62,6 +62,7 @@
             <label for="movieDuration">Movie Duration (minutes):</label>
             <input type="number" id="movieDuration" name="movieDuration" min="1" placeholder="e.g., 136">
         </div>
+
         <div>
             <label for="movieShowtimes">Showtimes (comma-separated, 24-hr format HH:MM):</label>
             <input type="text" id="movieShowtimes" name="movieShowtimes" placeholder="e.g., 10:30, 13:15, 16:00, 19:45">
@@ -198,19 +199,83 @@
             return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
         }
 
-        // Placeholder for the main scheduling algorithm
-        function findMarathonSchedules(movies, numToSchedule, breakTime, earliestStart) {
-            console.log("Inside findMarathonSchedules. Inputs:", movies, numToSchedule, breakTime, earliestStart);
-            // This is where the complex logic will go.
-            // For now, let's return an empty array or some dummy data.
-            const dummySchedule = [
-                // { movie: movies[0], chosenShowtime: movies[0]?.showtimesInMinutes[0] }
-            ];
-            // if (movies.length > 0 && movies[0].showtimesInMinutes.length > 0 && numToSchedule === 1) {
-            //     return [[{ movie: movies[0], chosenShowtimeMinutes: movies[0].showtimesInMinutes[0], title: movies[0].title, durationMinutes: movies[0].durationMinutes }]];
-            // }
-            return []; // Return an array of schedules (where each schedule is an array of movie slots)
+        // Main scheduling algorithm using recursive backtracking
+        function findMarathonSchedules(allMovies, numMoviesToSchedule, breakTimeMinutes, earliestStartMinutesGlobal) {
+            const validSchedules = []; // This will store all found valid marathon combinations
+
+            // Helper recursive function
+            // currentSchedule: an array of movie slots { movieDetails, chosenShowtimeMinutes, title, durationMinutes }
+            // usedMovieIndices: a Set to keep track of movies already in the currentSchedule to avoid duplicates
+            // lastMovieEndTime: the end time (in minutes from midnight) of the last movie added to currentSchedule
+            function findNextMovie(currentSchedule, usedMovieOriginalIndices, lastMovieEndTime) {
+                // BASE CASE: If we've selected the desired number of movies, this is a valid schedule
+                if (currentSchedule.length === numMoviesToSchedule) {
+                    validSchedules.push([...currentSchedule]); // Add a copy of the current schedule
+                    return;
+                }
+
+                // RECURSIVE STEP: Try to add another movie
+                for (let i = 0; i < allMovies.length; i++) {
+                    const movie = allMovies[i];
+
+                    // Skip if this movie (by its original index) is already in the current schedule
+                    if (usedMovieOriginalIndices.has(movie.originalIndex)) {
+                        continue;
+                    }
+
+                    for (const showtime of movie.showtimesInMinutes) {
+                        let canScheduleThisShowtime = false;
+                        let currentMovieStartTime = showtime;
+
+                        if (currentSchedule.length === 0) { // This is the FIRST movie in the marathon
+                            if (earliestStartMinutesGlobal !== null) {
+                                if (currentMovieStartTime >= earliestStartMinutesGlobal) {
+                                    canScheduleThisShowtime = true;
+                                }
+                            } else {
+                                // If no earliest start time, any showtime is fine for the first movie
+                                canScheduleThisShowtime = true;
+                            }
+                        } else { // This is a SUBSEQUENT movie in the marathon
+                            // Must start after the previous movie's end time + break time
+                            if (currentMovieStartTime >= lastMovieEndTime + breakTimeMinutes) {
+                                canScheduleThisShowtime = true;
+                            }
+                        }
+
+                        if (canScheduleThisShowtime) {
+                            // "Choose" this movie and showtime
+                            currentSchedule.push({
+                                title: movie.title,
+                                durationMinutes: movie.durationMinutes,
+                                chosenShowtimeMinutes: currentMovieStartTime,
+                                // originalIndex: movie.originalIndex // Optional: if needed for debugging or complex logic
+                            });
+                            usedMovieOriginalIndices.add(movie.originalIndex);
+                            const currentMovieNewEndTime = currentMovieStartTime + movie.durationMinutes;
+
+                            // Recursively find the next movie
+                            findNextMovie(currentSchedule, usedMovieOriginalIndices, currentMovieNewEndTime);
+
+                            // "Unchoose" / BACKTRACK: remove the movie for the next iteration of the loop
+                            currentSchedule.pop();
+                            usedMovieOriginalIndices.delete(movie.originalIndex);
+                        }
+                    }
+                }
+            }
+
+            // Initial call to the recursive helper
+            // Start with an empty schedule, empty set of used movies, and initial effective "last movie end time"
+            // If earliestStartMinutesGlobal is set, that's our constraint for the first movie's start.
+            // Otherwise, the first movie can start anytime, so we can use 0 or -Infinity conceptually.
+            // For simplicity, the logic inside findNextMovie handles the first movie's earliestStart constraint.
+            findNextMovie([], new Set(), 0); // Initial lastMovieEndTime can be 0 as the check handles it
+
+            console.log("Found Schedules:", validSchedules);
+            return validSchedules;
         }
+        
 
         // Placeholder for displaying the schedules
         function displaySchedules(schedules) {
