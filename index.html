@@ -88,7 +88,107 @@
 
     <!-- JavaScript will go here later, or in a separate file -->
     <script>
-        // JavaScript code will be added in the next phase
+        // Wait for the HTML document to be fully loaded before running the script
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get references to the HTML elements we'll interact with
+        const movieTitleInput = document.getElementById('movieTitle');
+        const movieDurationInput = document.getElementById('movieDuration');
+        const movieShowtimesInput = document.getElementById('movieShowtimes');
+        const addMovieButton = document.getElementById('addMovieButton');
+        const addedMoviesList = document.getElementById('addedMoviesList');
+
+        // This array will store all the movie objects the user adds
+        let moviesForMarathon = [];
+
+        // Event listener for the "Add Movie" button
+        addMovieButton.addEventListener('click', () => {
+            // 1. Get the values from the input fields
+            const title = movieTitleInput.value.trim(); // .trim() removes whitespace from ends
+            const duration = parseInt(movieDurationInput.value, 10); // Convert to integer
+            const showtimesRaw = movieShowtimesInput.value.trim();
+
+            // Basic Validation (we can make this more robust later)
+            if (!title) {
+                alert('Please enter a movie title.');
+                return; // Stop if no title
+            }
+            if (isNaN(duration) || duration <= 0) {
+                alert('Please enter a valid movie duration (a positive number).');
+                return; // Stop if duration is not a valid number
+            }
+            if (!showtimesRaw) {
+                alert('Please enter at least one showtime.');
+                return; // Stop if no showtimes
+            }
+
+            // 2. Process showtimes: split the comma-separated string into an array of strings
+            //    We'll also trim whitespace from each showtime.
+            //    Example: "10:30, 13:15, 16:00" becomes ["10:30", "13:15", "16:00"]
+            const showtimesArray = showtimesRaw.split(',').map(time => time.trim()).filter(time => time !== "");
+
+            if (showtimesArray.length === 0) {
+                alert('Please enter valid showtimes, separated by commas.');
+                return;
+            }
+
+            // 3. Create a movie object
+            const newMovie = {
+                title: title,
+                durationMinutes: duration,
+                showtimes: showtimesArray // Store them as an array of strings for now
+            };
+
+            // 4. Add the new movie object to our array
+            moviesForMarathon.push(newMovie);
+
+            // 5. Update the display of added movies
+            renderAddedMovies();
+
+            // 6. Clear the input fields for the next movie
+            movieTitleInput.value = '';
+            movieDurationInput.value = '';
+            movieShowtimesInput.value = '';
+            movieTitleInput.focus(); // Put cursor back in the title field
+
+            console.log('Current moviesForMarathon:', moviesForMarathon); // For debugging
+        });
+
+        // Function to display the list of added movies
+        function renderAddedMovies() {
+            // Clear the current list
+            addedMoviesList.innerHTML = '';
+
+            if (moviesForMarathon.length === 0) {
+                addedMoviesList.innerHTML = '<li><em>No movies added yet.</em></li>';
+                return;
+            }
+
+            moviesForMarathon.forEach((movie, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${movie.title} (${movie.durationMinutes} min) - Showtimes: ${movie.showtimes.join(', ')}`;
+                // We could add a "Remove" button here later
+                addedMoviesList.appendChild(listItem);
+            });
+        }
+
+        // --- Placeholder for Generate Schedule Button ---
+        // We'll add the event listener for generateScheduleButton later
+        const generateScheduleButton = document.getElementById('generateScheduleButton');
+        generateScheduleButton.addEventListener('click', () => {
+            alert('Generate Schedule functionality will be implemented soon!');
+            console.log("Movies to schedule:", moviesForMarathon);
+            const numMoviesInput = document.getElementById('numMovies');
+            const breakTimeInput = document.getElementById('breakTime');
+            const earliestStartTimeInput = document.getElementById('earliestStartTime');
+
+            console.log("Number of movies preference:", numMoviesInput.value);
+            console.log("Break time preference:", breakTimeInput.value);
+            console.log("Earliest start time preference:", earliestStartTimeInput.value);
+
+            // Here we will eventually call the scheduling algorithm
+        });
+
+    }); // End of DOMContentLoaded
     </script>
 
 </body>
