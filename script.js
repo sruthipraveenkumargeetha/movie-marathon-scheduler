@@ -254,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Found Schedules:", validSchedules);
         return validSchedules;
     }
+
     function displaySchedules(schedulesWithBreaks, minBreakPreference) {
         const scheduleResultsDiv = document.getElementById('scheduleResults');
         scheduleResultsDiv.innerHTML = '';
@@ -263,64 +264,67 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- NEW: Limit to top 5 schedules ---
         const schedulesToDisplay = schedulesWithBreaks.slice(0, 5);
         let messageForMoreSchedules = "";
         if (schedulesWithBreaks.length > 5) {
             messageForMoreSchedules = `<p><em>Showing top 5 schedules out of ${schedulesWithBreaks.length} found.</em></p>`;
         }
-        // --- END OF NEW LIMIT ---
-
 
         const ol = document.createElement('ol');
         ol.start = 1;
 
-        // Iterate over schedulesToDisplay instead of schedulesWithBreaks
         schedulesToDisplay.forEach((scheduleData, index) => {
-            const schedule = scheduleData.movies;
+            const schedule = scheduleData.movies; // This is an array of movie slots
             const totalBreakTime = scheduleData.totalBreakTime;
 
-            const scheduleLi = document.createElement('li');
-            // ... (rest of the scheduleLi content generation remains the same) ...
+            const scheduleLi = document.createElement('li'); // Main li for the whole marathon option
             let scheduleTitle = `<strong>Marathon Option ${index + 1}</strong> (Total Break Time: ${formatDurationFromMinutes(totalBreakTime)})`;
             if (schedule.length <= 1) {
                 scheduleTitle = `<strong>Marathon Option ${index + 1}</strong>`;
                 if (totalBreakTime === 0 && schedule.length > 1) {
-                        scheduleTitle = `<strong>Marathon Option ${index + 1}</strong> (Total Break Time: 0 min)`;
+                    scheduleTitle = `<strong>Marathon Option ${index + 1}</strong> (Total Break Time: 0 min)`;
                 }
             }
             scheduleLi.innerHTML = scheduleTitle;
             
-            const individualMoviesUl = document.createElement('ul');
-            individualMoviesUl.style.listStyleType = "'- '"; 
+            const individualItemsUl = document.createElement('ul'); // Renamed for clarity
+            individualItemsUl.style.listStyleType = "none"; // Remove default bullets for more control
+            individualItemsUl.style.paddingLeft = "0"; // Remove default padding
 
-        schedule.forEach((slot, movieIndex) => {
-            const movieLi = document.createElement('li');
-            const startTime = minutesToTime(slot.chosenShowtimeMinutes);
-            const endTime = minutesToTime(slot.chosenShowtimeMinutes + slot.durationMinutes);
-            const movieDurationFormatted = formatDurationFromMinutes(slot.durationMinutes);
-            let breakInfo = "";
-            if (movieIndex > 0 && movieIndex < schedule.length) {
-                const previousSlot = schedule[movieIndex-1];
-                const actualBreakMinutes = slot.chosenShowtimeMinutes - (previousSlot.chosenShowtimeMinutes + previousSlot.durationMinutes);
-                breakInfo = ` (Break: ${formatDurationFromMinutes(actualBreakMinutes)})`;
-            }
-            movieLi.textContent = `${slot.title} (${movieDurationFormatted}): ${startTime} - ${endTime}${breakInfo}`;
-            individualMoviesUl.appendChild(movieLi);
+            // Iterate through movies to display them and the breaks BETWEEN them
+            schedule.forEach((slot, movieIndex) => {
+                // --- Add Movie Item ---
+                const movieLi = document.createElement('li');
+                const startTime = minutesToTime(slot.chosenShowtimeMinutes);
+                const endTime = minutesToTime(slot.chosenShowtimeMinutes + slot.durationMinutes);
+                const movieDurationFormatted = formatDurationFromMinutes(slot.durationMinutes);
+                
+                movieLi.textContent = `${slot.title} (${movieDurationFormatted}): ${startTime} - ${endTime}`;
+                individualItemsUl.appendChild(movieLi);
+
+                // --- Add Break Item (if it's not the last movie) ---
+                if (movieIndex < schedule.length - 1) {
+                    const nextSlot = schedule[movieIndex + 1];
+                    const actualBreakMinutes = nextSlot.chosenShowtimeMinutes - (slot.chosenShowtimeMinutes + slot.durationMinutes);
+                    
+                    const breakLi = document.createElement('li');
+                    breakLi.classList.add('break-time-item'); // Add a class for styling
+                    breakLi.innerHTML = `<span>--- Break: ${formatDurationFromMinutes(actualBreakMinutes)} ---</span>`;
+                    individualItemsUl.appendChild(breakLi);
+                }
+            });
+            scheduleLi.appendChild(individualItemsUl);
+            ol.appendChild(scheduleLi);
         });
-        scheduleLi.appendChild(individualMoviesUl);
-        ol.appendChild(scheduleLi);
-    });
 
-    scheduleResultsDiv.appendChild(ol);
-    // --- NEW: Add message if more schedules were found ---
-    if (messageForMoreSchedules) {
-        scheduleResultsDiv.insertAdjacentHTML('beforeend', messageForMoreSchedules);
+        scheduleResultsDiv.appendChild(ol);
+        if (messageForMoreSchedules) {
+            scheduleResultsDiv.insertAdjacentHTML('beforeend', messageForMoreSchedules);
+        }
+        console.log("Displayed Top Schedules (max 5, revised breaks):", schedulesToDisplay);
     }
-    // --- END OF NEW MESSAGE ---
 
-    console.log("Displayed Top Schedules (max 5):", schedulesToDisplay);
-    }
+
     // We'll add the event listener for generateScheduleButton later
     const generateScheduleButton = document.getElementById('generateScheduleButton');
     generateScheduleButton.addEventListener('click', () => {

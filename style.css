@@ -40,3 +40,66 @@ button:hover { background-color: #0056b3; }
     font-style: italic;
     color: #555;
 }
+
+/* Ensure the parent ul has position relative if we use absolute positioning for pseudo-elements */
+#scheduleResults ol > li ul {
+    position: relative; /* For child pseudo-elements */
+    /* list-style-type: none; /* Already set in JS */
+    /* padding-left: 0; /* Already set in JS */
+}
+
+#scheduleResults ol > li ul > li { /* Style for both movie and break LIs within the sub-list */
+    padding-left: 25px; /* Make space for a custom "bullet" or line */
+    position: relative; /* For pseudo-elements */
+    margin-bottom: 8px; /* Spacing between movie/break items */
+}
+
+/* A vertical line on the left of movie/break items */
+#scheduleResults ol > li ul > li::before {
+    content: '';
+    position: absolute;
+    left: 8px; /* Adjust to align with your "dot" */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e0e0e0; 
+}
+
+/* A "dot" for each movie item */
+#scheduleResults ol > li ul > li:not(.break-time-item)::after {
+    content: '🎬'; /* Or a filled circle: '\25CF' */
+    position: absolute;
+    left: 0px; /* Adjust to center on the line */
+    top: 0px; /* Adjust vertical alignment */
+    font-size: 1.2em; /* Adjust icon size */
+    color: #007bff;
+    line-height: 1.2; /* Adjust based on font/icon */
+}
+
+
+.break-time-item {
+    font-weight: bold;
+    color: #28a745; /* Green for break */
+    text-align: center; /* Or keep left-aligned with the dot */
+    padding: 8px 0 8px 25px; /* Keep padding consistent if dots are used */
+    margin: 5px 0;
+    /* border: 1px solid #28a745; */ /* Optional border */
+    /* background-color: #e9f5ec; */ /* Optional light green background */
+}
+
+/* A "dot" or icon for break items */
+.break-time-item::after {
+    content: '☕'; /* Coffee cup icon for break! */
+    /* content: '\25CB'; /* Open circle for break */
+    position: absolute;
+    left: 0px; /* Adjust */
+    top: 0px; /* Adjust */
+    font-size: 1.2em;
+    color: #28a745;
+    line-height: 1.2;
+}
+
+/* To make the line not extend below the last item */
+#scheduleResults ol > li ul > li:last-child::before {
+    height: 1em; /* Or to the height of the content */
+}
