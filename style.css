@@ -1,0 +1,42 @@
+/* Basic styling for now - we'll improve this later */
+body { font-family: sans-serif; margin: 20px; }
+.container { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+h2, h3 { margin-top: 0; }
+label { display: block; margin-bottom: 5px; }
+input[type="text"], input[type="number"], input[type="time"] {
+    width: calc(100% - 22px); /* Adjust for padding and border */
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Important for width calculation */
+}
+button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+button:hover { background-color: #0056b3; }
+#addedMoviesList li { margin-bottom: 5px; }
+#scheduleResults { margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 4px; }
+        #scheduleResults ol > li { /* Target direct li children of ol inside #scheduleResults */
+    margin-bottom: 20px; /* Adjust as needed */
+    padding-bottom: 10px; /* Optional: if you want some padding before a border */
+    border-bottom: 1px dashed #eee; /* Optional: a light separator line */
+}
+
+#scheduleResults ol > li:last-child { /* Remove border from the very last item */
+    border-bottom: none;
+    margin-bottom: 0; /* Optional: remove margin from last item if it looks better */
+}
+
+/* Style for the "Showing top 5..." message */
+#scheduleResults p {
+    margin-top: 15px;
+    font-style: italic;
+    color: #555;
+}
