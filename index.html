@@ -96,6 +96,7 @@
         const movieShowtimesInput = document.getElementById('movieShowtimes');
         const addMovieButton = document.getElementById('addMovieButton');
         const addedMoviesList = document.getElementById('addedMoviesList');
+        const scheduleResultsDiv = document.getElementById('scheduleResults');
 
         // This array will store all the movie objects the user adds
         let moviesForMarathon = [];
@@ -171,21 +172,163 @@
             });
         }
 
+
+        // Helper function to convert "HH:MM" string to minutes since midnight
+        function timeToMinutes(timeStr) {
+            if (!timeStr || !timeStr.includes(':')) {
+                console.error("Invalid time string format:", timeStr);
+                return null;
+            }
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+                console.error("Invalid time values in string:", timeStr);
+                return null;
+            }
+            return hours * 60 + minutes;
+        }   
+
+        // Helper function to convert minutes since midnight back to "HH:MM" string
+        function minutesToTime(totalMinutes) {
+            if (isNaN(totalMinutes) || totalMinutes < 0) {
+                console.error("Invalid total minutes:", totalMinutes);
+                return "00:00";
+            }
+            const hours = Math.floor(totalMinutes / 60) % 24;
+            const minutes = totalMinutes % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        // Placeholder for the main scheduling algorithm
+        function findMarathonSchedules(movies, numToSchedule, breakTime, earliestStart) {
+            console.log("Inside findMarathonSchedules. Inputs:", movies, numToSchedule, breakTime, earliestStart);
+            // This is where the complex logic will go.
+            // For now, let's return an empty array or some dummy data.
+            const dummySchedule = [
+                // { movie: movies[0], chosenShowtime: movies[0]?.showtimesInMinutes[0] }
+            ];
+            // if (movies.length > 0 && movies[0].showtimesInMinutes.length > 0 && numToSchedule === 1) {
+            //     return [[{ movie: movies[0], chosenShowtimeMinutes: movies[0].showtimesInMinutes[0], title: movies[0].title, durationMinutes: movies[0].durationMinutes }]];
+            // }
+            return []; // Return an array of schedules (where each schedule is an array of movie slots)
+        }
+
+        // Placeholder for displaying the schedules
+        function displaySchedules(schedules) {
+            const scheduleResultsDiv = document.getElementById('scheduleResults'); // Already declared above, but good to be clear
+            scheduleResultsDiv.innerHTML = ''; // Clear previous results or "generating..." message
+
+            if (!schedules || schedules.length === 0) {
+                scheduleResultsDiv.innerHTML = '<p><em>No valid marathon schedules found with the given criteria. Try adjusting preferences or adding more movie showtimes.</em></p>';
+                return;
+            }
+
+        const ul = document.createElement('ul');
+        schedules.forEach((schedule, index) => {
+            const scheduleLi = document.createElement('li');
+            scheduleLi.innerHTML = `<strong>Marathon Option ${index + 1}:</strong>`;
+            
+            const individualMoviesUl = document.createElement('ul');
+            let previousMovieEndTime = 0; // For calculating actual start if earliestStart is null
+
+            schedule.forEach((slot, movieIndex) => {
+                const movieLi = document.createElement('li');
+                const startTime = minutesToTime(slot.chosenShowtimeMinutes);
+                const endTime = minutesToTime(slot.chosenShowtimeMinutes + slot.durationMinutes);
+                
+                let breakInfo = "";
+                if (movieIndex > 0) {
+                    const previousSlot = schedule[movieIndex-1];
+                    const actualBreak = slot.chosenShowtimeMinutes - (previousSlot.chosenShowtimeMinutes + previousSlot.durationMinutes);
+                    breakInfo = ` (Break: ${actualBreak} min)`;
+                }
+
+                movieLi.textContent = `${slot.title} (${slot.durationMinutes} min): ${startTime} - ${endTime}${breakInfo}`;
+                individualMoviesUl.appendChild(movieLi);
+            });
+            scheduleLi.appendChild(individualMoviesUl);
+            ul.appendChild(scheduleLi);
+        });
+        scheduleResultsDiv.appendChild(ul);
+        console.log("Displayed Schedules:", schedules);
+
+        }
+
         // --- Placeholder for Generate Schedule Button ---
         // We'll add the event listener for generateScheduleButton later
         const generateScheduleButton = document.getElementById('generateScheduleButton');
         generateScheduleButton.addEventListener('click', () => {
-            alert('Generate Schedule functionality will be implemented soon!');
-            console.log("Movies to schedule:", moviesForMarathon);
-            const numMoviesInput = document.getElementById('numMovies');
-            const breakTimeInput = document.getElementById('breakTime');
-            const earliestStartTimeInput = document.getElementById('earliestStartTime');
+            scheduleResultsDiv.innerHTML = '<p><em>Generating schedules...</em></p>'; // Indicate processing
 
-            console.log("Number of movies preference:", numMoviesInput.value);
-            console.log("Break time preference:", breakTimeInput.value);
-            console.log("Earliest start time preference:", earliestStartTimeInput.value);
+            // 1. Get user preferences
+            const numMoviesToSchedule = parseInt(document.getElementById('numMovies').value, 10);
+            const breakTimeMinutes = parseInt(document.getElementById('breakTime').value, 10);
+            const earliestStartTimeRaw = document.getElementById('earliestStartTime').value;
 
-            // Here we will eventually call the scheduling algorithm
+            let earliestStartMinutes = null;
+            if (earliestStartTimeRaw) {
+                earliestStartMinutes = timeToMinutes(earliestStartTimeRaw);
+                if (earliestStartMinutes === null) {
+                    alert('Invalid Earliest Start Time format. Please use HH:MM or leave blank.');
+                    scheduleResultsDiv.innerHTML = '<p><em>Error: Invalid earliest start time.</em></p>';
+                    return;
+                }
+            }
+
+            // Basic validation for preferences
+            if (isNaN(numMoviesToSchedule) || numMoviesToSchedule <= 0) {
+                alert('Please enter a valid number of movies for the marathon.');
+                scheduleResultsDiv.innerHTML = '<p><em>Error: Invalid number of movies.</em></p>';
+                return;
+            }
+            if (isNaN(breakTimeMinutes) || breakTimeMinutes < 0) {
+                alert('Please enter a valid break time (0 or more minutes).');
+                scheduleResultsDiv.innerHTML = '<p><em>Error: Invalid break time.</em></p>';
+                return;
+            }
+            if (moviesForMarathon.length === 0) {
+                alert('Please add some movies before generating a schedule.');
+                scheduleResultsDiv.innerHTML = '<p><em>Please add movies first.</em></p>';
+                return;
+            }
+            if (numMoviesToSchedule > moviesForMarathon.length) {
+                alert(`You want to schedule ${numMoviesToSchedule} movies, but have only added ${moviesForMarathon.length}. Please add more movies or reduce the number to schedule.`);
+                scheduleResultsDiv.innerHTML = `<p><em>Not enough movies added for ${numMoviesToSchedule}-movie marathon.</em></p>`;
+                return;
+            }
+
+
+            // 2. Prepare movie data with showtimes in minutes
+            // We create a new array to avoid modifying the original moviesForMarathon if we re-generate
+            const processedMovies = moviesForMarathon.map((movie, index) => {
+                return {
+                    // Keep original index for reference if needed, or a unique ID
+                    originalIndex: index, // Could also generate a unique ID
+                    title: movie.title,
+                    durationMinutes: movie.durationMinutes,
+                    // Convert all showtime strings to minutes, filtering out any invalid ones
+                    showtimesInMinutes: movie.showtimes
+                                            .map(st => timeToMinutes(st))
+                                            .filter(stMin => stMin !== null)
+                                            .sort((a, b) => a - b) // Sort showtimes numerically (earliest first)
+                };
+            }).filter(movie => movie.showtimesInMinutes.length > 0); // Only include movies with valid, converted showtimes
+
+            if (processedMovies.length < numMoviesToSchedule) {
+                    alert(`After processing, only ${processedMovies.length} movies have valid showtimes, which is less than the ${numMoviesToSchedule} movies you want to schedule. Please check showtime formats.`);
+                scheduleResultsDiv.innerHTML = `<p><em>Not enough movies with valid showtimes for ${numMoviesToSchedule}-movie marathon.</em></p>`;
+                return;
+            }
+
+
+            console.log("Scheduling Preferences:", { numMoviesToSchedule, breakTimeMinutes, earliestStartMinutes });
+            console.log("Processed Movies for Scheduling:", processedMovies);
+
+            // 3. Call the main scheduling function (we'll create this next)
+            const allSchedules = findMarathonSchedules(processedMovies, numMoviesToSchedule, breakTimeMinutes, earliestStartMinutes);
+
+            // 4. Display the results (we'll create a function for this too)
+            displaySchedules(allSchedules);
+
         });
 
     }); // End of DOMContentLoaded
