@@ -157,21 +157,21 @@
 
         // Function to display the list of added movies
         function renderAddedMovies() {
-            // Clear the current list
-            addedMoviesList.innerHTML = '';
+        addedMoviesList.innerHTML = '';
 
-            if (moviesForMarathon.length === 0) {
-                addedMoviesList.innerHTML = '<li><em>No movies added yet.</em></li>';
-                return;
-            }
-
-            moviesForMarathon.forEach((movie, index) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${index + 1}. ${movie.title} (${movie.durationMinutes} min) - Showtimes: ${movie.showtimes.join(', ')}`;
-                // We could add a "Remove" button here later
-                addedMoviesList.appendChild(listItem);
-            });
+        if (moviesForMarathon.length === 0) {
+            addedMoviesList.innerHTML = '<li><em>No movies added yet.</em></li>';
+            return;
         }
+
+        moviesForMarathon.forEach((movie, index) => {
+            const listItem = document.createElement('li');
+            // Use the new formatting function here too
+            const durationFormatted = formatDurationFromMinutes(movie.durationMinutes);
+            listItem.textContent = `${index + 1}. ${movie.title} (${durationFormatted}) - Showtimes: ${movie.showtimes.join(', ')}`;
+            addedMoviesList.appendChild(listItem);
+        });
+    }
 
 
         // Helper function to convert "HH:MM" string to minutes since midnight
@@ -234,6 +234,38 @@
 
 
             return totalMinutes > 0 ? totalMinutes : (durationStr.startsWith("0") ? 0 : null); // Return null if parsing failed or result is not positive, unless it was explicitly "0"
+        }
+
+        // Helper function to format a duration in minutes to "X hr Y min" string
+        function formatDurationFromMinutes(totalMinutes) {
+        if (isNaN(totalMinutes) || totalMinutes < 0) {
+            return "0 min"; // Or handle error appropriately
+        }
+        if (totalMinutes === 0) {
+            return "0 min";
+        }
+
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        let parts = [];
+        if (hours > 0) {
+            parts.push(`${hours} hr`);
+        }
+        if (minutes > 0) {
+            parts.push(`${minutes} min`);
+        }
+
+        // If totalMinutes was, for example, 120 (so 2hr 0min), parts would only have "2hr".
+        // If parts is empty (e.g. totalMinutes was < 1 but not 0, which shouldn't happen with Math.floor for hours), default to 0 min
+        if (parts.length === 0 && hours === 0 && minutes === 0) { // Should only happen if input was 0
+            return "0 min";
+        } else if (parts.length === 0 && hours > 0 && minutes === 0) { // e.g. 120 minutes -> 2hr
+            return `${hours} hr`;
+        }
+
+
+        return parts.join(' ');
         }
 
         // Main scheduling algorithm using recursive backtracking
@@ -312,47 +344,62 @@
             console.log("Found Schedules:", validSchedules);
             return validSchedules;
         }
-        
 
         // Placeholder for displaying the schedules
-        function displaySchedules(schedules) {
-            const scheduleResultsDiv = document.getElementById('scheduleResults'); // Already declared above, but good to be clear
-            scheduleResultsDiv.innerHTML = ''; // Clear previous results or "generating..." message
+        function displaySchedules(schedulesWithBreaks, minBreakPreference) {
+            const scheduleResultsDiv = document.getElementById('scheduleResults');
+            scheduleResultsDiv.innerHTML = '';
 
-            if (!schedules || schedules.length === 0) {
+            if (!schedulesWithBreaks || schedulesWithBreaks.length === 0) {
                 scheduleResultsDiv.innerHTML = '<p><em>No valid marathon schedules found with the given criteria. Try adjusting preferences or adding more movie showtimes.</em></p>';
                 return;
             }
 
-        const ul = document.createElement('ul');
-        schedules.forEach((schedule, index) => {
-            const scheduleLi = document.createElement('li');
-            scheduleLi.innerHTML = `<strong>Marathon Option ${index + 1}:</strong>`;
-            
-            const individualMoviesUl = document.createElement('ul');
-            let previousMovieEndTime = 0; // For calculating actual start if earliestStart is null
+            const ol = document.createElement('ol');
+            ol.start = 1;
 
-            schedule.forEach((slot, movieIndex) => {
-                const movieLi = document.createElement('li');
-                const startTime = minutesToTime(slot.chosenShowtimeMinutes);
-                const endTime = minutesToTime(slot.chosenShowtimeMinutes + slot.durationMinutes);
-                
-                let breakInfo = "";
-                if (movieIndex > 0) {
-                    const previousSlot = schedule[movieIndex-1];
-                    const actualBreak = slot.chosenShowtimeMinutes - (previousSlot.chosenShowtimeMinutes + previousSlot.durationMinutes);
-                    breakInfo = ` (Break: ${actualBreak} min)`;
+            schedulesWithBreaks.forEach((scheduleData, index) => {
+                const schedule = scheduleData.movies;
+                const totalBreakTime = scheduleData.totalBreakTime;
+
+                const scheduleLi = document.createElement('li');
+                // Use new formatting function for total break time
+                let scheduleTitle = `<strong>Marathon Option ${index + 1}</strong> (Total Break Time: ${formatDurationFromMinutes(totalBreakTime)})`;
+                if (schedule.length <= 1) { // If only one movie, or 0 break time
+                    scheduleTitle = `<strong>Marathon Option ${index + 1}</strong>`;
+                    if (totalBreakTime === 0 && schedule.length > 1) { // explicitly 0 total break time
+                            scheduleTitle = `<strong>Marathon Option ${index + 1}</strong> (Total Break Time: 0 min)`;
+                    }
                 }
+                scheduleLi.innerHTML = scheduleTitle;
+                
+                const individualMoviesUl = document.createElement('ul');
+                individualMoviesUl.style.listStyleType = "'- '"; 
 
-                movieLi.textContent = `${slot.title} (${slot.durationMinutes} min): ${startTime} - ${endTime}${breakInfo}`;
-                individualMoviesUl.appendChild(movieLi);
+                schedule.forEach((slot, movieIndex) => {
+                    const movieLi = document.createElement('li');
+                    const startTime = minutesToTime(slot.chosenShowtimeMinutes); // HH:MM format
+                    const endTime = minutesToTime(slot.chosenShowtimeMinutes + slot.durationMinutes); // HH:MM format
+                    
+                    // Use new formatting for individual movie duration display
+                    const movieDurationFormatted = formatDurationFromMinutes(slot.durationMinutes);
+
+                    let breakInfo = "";
+                    if (movieIndex > 0 && movieIndex < schedule.length) {
+                        const previousSlot = schedule[movieIndex-1];
+                        const actualBreakMinutes = slot.chosenShowtimeMinutes - (previousSlot.chosenShowtimeMinutes + previousSlot.durationMinutes);
+                        // Use new formatting for individual break display
+                        breakInfo = ` (Break: ${formatDurationFromMinutes(actualBreakMinutes)})`;
+                    }
+
+                    movieLi.textContent = `${slot.title} (${movieDurationFormatted}): ${startTime} - ${endTime}${breakInfo}`;
+                    individualMoviesUl.appendChild(movieLi);
+                });
+                scheduleLi.appendChild(individualMoviesUl);
+                ol.appendChild(scheduleLi);
             });
-            scheduleLi.appendChild(individualMoviesUl);
-            ul.appendChild(scheduleLi);
-        });
-        scheduleResultsDiv.appendChild(ul);
-        console.log("Displayed Schedules:", schedules);
-
+            scheduleResultsDiv.appendChild(ol);
+            console.log("Displayed Sorted Schedules (formatted durations):", schedulesWithBreaks);
         }
 
         // --- Placeholder for Generate Schedule Button ---
@@ -425,11 +472,40 @@
             console.log("Scheduling Preferences:", { numMoviesToSchedule, breakTimeMinutes, earliestStartMinutes });
             console.log("Processed Movies for Scheduling:", processedMovies);
 
-            // 3. Call the main scheduling function (we'll create this next)
-            const allSchedules = findMarathonSchedules(processedMovies, numMoviesToSchedule, breakTimeMinutes, earliestStartMinutes);
+     
 
-            // 4. Display the results (we'll create a function for this too)
-            displaySchedules(allSchedules);
+        // 3. Call the main scheduling function
+        let allSchedules = findMarathonSchedules(processedMovies, numMoviesToSchedule, breakTimeMinutes, earliestStartMinutes);
+
+        // --- : Calculate cumulative break time for each schedule ---
+        if (allSchedules && allSchedules.length > 0) {
+            allSchedules = allSchedules.map(schedule => {
+                let cumulativeBreak = 0;
+                if (schedule.length > 1) { // Only calculate breaks if more than 1 movie
+                    for (let i = 0; i < schedule.length - 1; i++) {
+                        const currentMovieEndTime = schedule[i].chosenShowtimeMinutes + schedule[i].durationMinutes;
+                        const nextMovieStartTime = schedule[i+1].chosenShowtimeMinutes;
+                        // The actual break between these two movies
+                        const actualBreak = nextMovieStartTime - currentMovieEndTime;
+                        cumulativeBreak += actualBreak;
+                    }
+                }
+                return {
+                    movies: schedule, // The original schedule array
+                    totalBreakTime: cumulativeBreak
+                };
+            });
+
+            // --- Sort schedules by totalBreakTime (ascending) ---
+            allSchedules.sort((a, b) => a.totalBreakTime - b.totalBreakTime);
+        }
+        // --- END OF  CALCULATION AND SORTING ---
+
+
+        // 4. Display the results (we'll create a function for this too)
+        displaySchedules(allSchedules, breakTimeMinutes); // Pass original breakTimeMinutes for context if needed
+
+ 
 
         });
 
