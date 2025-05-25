@@ -59,10 +59,9 @@
             <input type="text" id="movieTitle" name="movieTitle" placeholder="e.g., The Matrix">
         </div>
         <div>
-            <label for="movieDuration">Movie Duration (minutes):</label>
-            <input type="number" id="movieDuration" name="movieDuration" min="1" placeholder="e.g., 136">
+            <label for="movieDuration">Movie Duration (e.g., 1hr 30min, 90min, 2h):</label>
+            <input type="text" id="movieDuration" name="movieDuration" placeholder="e.g., 1hr 48min or 108min">
         </div>
-
         <div>
             <label for="movieShowtimes">Showtimes (comma-separated, 24-hr format HH:MM):</label>
             <input type="text" id="movieShowtimes" name="movieShowtimes" placeholder="e.g., 10:30, 13:15, 16:00, 19:45">
@@ -105,8 +104,9 @@
         // Event listener for the "Add Movie" button
         addMovieButton.addEventListener('click', () => {
             // 1. Get the values from the input fields
-            const title = movieTitleInput.value.trim(); // .trim() removes whitespace from ends
-            const duration = parseInt(movieDurationInput.value, 10); // Convert to integer
+            const title = movieTitleInput.value.trim();
+            const durationStr = movieDurationInput.value; // Get duration as string first
+            const duration = parseDurationToMinutes(durationStr); // Use new parsing function
             const showtimesRaw = movieShowtimesInput.value.trim();
 
             // Basic Validation (we can make this more robust later)
@@ -114,9 +114,9 @@
                 alert('Please enter a movie title.');
                 return; // Stop if no title
             }
-            if (isNaN(duration) || duration <= 0) {
-                alert('Please enter a valid movie duration (a positive number).');
-                return; // Stop if duration is not a valid number
+            if (duration === null || duration <= 0) { 
+                alert('Please enter a valid movie duration (e.g., 1hr 30min, 90min, or 90).');
+                return; // Stop if duration is not valid
             }
             if (!showtimesRaw) {
                 alert('Please enter at least one showtime.');
@@ -197,6 +197,43 @@
             const hours = Math.floor(totalMinutes / 60) % 24;
             const minutes = totalMinutes % 60;
             return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+        // Helper function to parse various duration string formats to total minutes
+        function parseDurationToMinutes(durationStr) {
+            if (!durationStr) return null;
+            durationStr = String(durationStr).toLowerCase().trim();
+
+            let totalMinutes = 0;
+
+            // Regex to capture hours and minutes
+            // It looks for patterns like "Xhr Ymin", "Xh Ym", "Xhr", "Xh", "Ymin", "Ym"
+            // It also handles optional spaces around hr/h and min/m
+            const hourMatch = durationStr.match(/(\d+)\s*(?:hr|h)/);
+            const minMatch = durationStr.match(/(\d+)\s*(?:min|m)/);
+
+            if (hourMatch && hourMatch[1]) {
+                totalMinutes += parseInt(hourMatch[1], 10) * 60;
+            }
+
+            if (minMatch && minMatch[1]) {
+                totalMinutes += parseInt(minMatch[1], 10);
+            }
+
+            // If no 'hr' or 'min' found, and it's just a number, assume it's minutes
+            if (!hourMatch && !minMatch && /^\d+$/.test(durationStr)) {
+                totalMinutes = parseInt(durationStr, 10);
+            }
+            
+            // If after all parsing, totalMinutes is still 0 AND the original string wasn't just "0" or "0min" etc.
+            // it might be an invalid format that didn't match hr/min and wasn't a plain number.
+            // However, if it successfully parsed to 0 (e.g. "0hr 0min"), that's valid.
+            if (totalMinutes === 0 && !/^(0|0hr|0h|0min|0m|0\s*hr\s*0\s*min)$/.test(durationStr.replace(/\s+/g, ''))) {
+                // If string contains letters but didn't parse to anything, it's likely invalid
+                if (/[a-zA-Z]/.test(durationStr)) return null;
+            }
+
+
+            return totalMinutes > 0 ? totalMinutes : (durationStr.startsWith("0") ? 0 : null); // Return null if parsing failed or result is not positive, unless it was explicitly "0"
         }
 
         // Main scheduling algorithm using recursive backtracking
