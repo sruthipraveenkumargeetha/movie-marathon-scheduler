@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Marathon Scheduler</title>
+    <style>
+        /* Basic styling for now - we'll improve this later */
+        body { font-family: sans-serif; margin: 20px; }
+        .container { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        h2, h3 { margin-top: 0; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="number"], input[type="time"] {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Important for width calculation */
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #0056b3; }
+        #addedMoviesList li { margin-bottom: 5px; }
+        #scheduleResults { margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <h1>Movie Marathon Scheduler</h1>
+
+    <div class="container" id="preferencesSection">
+        <h2>Marathon Preferences</h2>
+        <div>
+            <label for="numMovies">Number of Movies for Marathon:</label>
+            <input type="number" id="numMovies" name="numMovies" min="1" value="3">
+        </div>
+        <div>
+            <label for="breakTime">Desired Break Time (minutes):</label>
+            <input type="number" id="breakTime" name="breakTime" min="0" value="15">
+        </div>
+        <div>
+            <label for="earliestStartTime">Earliest Start Time (optional):</label>
+            <input type="time" id="earliestStartTime" name="earliestStartTime">
+        </div>
+    </div>
+
+    <div class="container" id="addMovieSection">
+        <h2>Add Movie Details</h2>
+        <div>
+            <label for="movieTitle">Movie Title:</label>
+            <input type="text" id="movieTitle" name="movieTitle" placeholder="e.g., The Matrix">
+        </div>
+        <div>
+            <label for="movieDuration">Movie Duration (minutes):</label>
+            <input type="number" id="movieDuration" name="movieDuration" min="1" placeholder="e.g., 136">
+        </div>
+        <div>
+            <label for="movieShowtimes">Showtimes (comma-separated, 24-hr format HH:MM):</label>
+            <input type="text" id="movieShowtimes" name="movieShowtimes" placeholder="e.g., 10:30, 13:15, 16:00, 19:45">
+        </div>
+        <button id="addMovieButton">Add Movie to List</button>
+    </div>
+
+    <div class="container" id="currentMoviesSection">
+        <h2>Movies Added for Marathon</h2>
+        <ul id="addedMoviesList">
+            <!-- Movies added by JavaScript will appear here -->
+            <li><em>No movies added yet.</em></li>
+        </ul>
+    </div>
+
+    <div class="container" id="generateScheduleSection">
+        <button id="generateScheduleButton">Generate Marathon Schedule</button>
+        <h3>Generated Schedule(s):</h3>
+        <div id="scheduleResults">
+            <!-- Schedule results will appear here -->
+            <p><em>Schedule will be displayed here once generated.</em></p>
+        </div>
+    </div>
+
+    <!-- JavaScript will go here later, or in a separate file -->
+    <script>
+        // JavaScript code will be added in the next phase
+    </script>
+
+</body>
+</html>
