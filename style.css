@@ -1,19 +1,18 @@
+/* style.css */
+
 /* Basic styling for now - we'll improve this later */
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     margin: 0;
-    padding: 20px; /* Adds some space around the content */
-    text-align: center; /* This centers inline-block elements like our h1 */
+    padding: 20px;
     background: linear-gradient(to top right, #FFCAD4, #F4ACB7, #FF8FAB, #FFB3C6);
-    /* Colors: Lighter, softer pinks and peachy tones */
-    /* For something more subtle: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); */
-    background-size: 200% 200%; /* Can adjust size for animation speed */
-    animation: gradientAnimation 20s ease infinite alternate; /* 'alternate' makes it go back and forth */
-    display: flex; /* Use flexbox for easy centering */
-    justify-content: center; /* Horizontally center */
-    align-items: center; /* Vertically center (optional, but good for full page) */
-    min-height: 100vh;
+    background-size: 200% 200%;
+    animation: gradientAnimation 20s ease infinite alternate;
     color: #333;
+    display: flex; /* Use flexbox */
+    flex-direction: column; /* Stack main children vertically */
+    align-items: center; /* Center children horizontally */
+    min-height: 100vh;
 }
 
 @keyframes gradientAnimation {
@@ -22,141 +21,227 @@ body {
 }
 
 h1 {
-    /* --- Centering & Basic Layout --- */
-    /* 'text-align: center;' on the body helps, but for more robust centering of the h1 block itself: */
-    /* display: inline-block; /* Allows text-align on parent to work well and transform to apply cleanly */
-                            /* Using flex on body makes this less critical */
-
-    /* --- Funky Font Style --- */
-    font-family: 'Comic Sans MS', 'Brush Script MT', cursive; /* A classic "funky" or playful font */
-    font-size: 4.5em; /* Make it BIG! Adjust as needed */
+    font-family: 'Comic Sans MS', 'Brush Script MT', cursive;
+    font-size: 3.5em; /* Slightly reduced for better fit with more content */
     font-weight: bold;
-    color: #6A0DAD; /* A vibrant purple, contrasts well with pink */
-
-    /* --- Funky Text Effects --- */
+    color: #6A0DAD;
     text-shadow:
-        3px 3px 0px #FF69B4,   /* Hot pink shadow, slightly offset */
-        6px 6px 0px #FF1493,   /* Deeper pink shadow, more offset */
-        9px 9px 0px rgba(0,0,0,0.2); /* Subtle dark shadow for depth */
-
-    /* --- Funky Transformations & Spacing --- */
-    transform: rotate(-5deg); /* Give it a slight, playful tilt */
-    letter-spacing: 2px; /* Add a bit of space between letters */
-    padding: 15px 25px; /* Add some padding inside the h1 */
-    border: 4px dashed #FFC0CB; /* A dashed pink border (lighter pink) */
-    border-radius: 15px; /* Rounded corners for the border */
-    background-color: rgba(255, 255, 255, 0.3); /* A slightly transparent white background for the h1 */
-    display: inline-block; /* Important for transform and padding to look right */
+        2px 2px 0px #FF69B4,
+        4px 4px 0px #FF1493,
+        6px 6px 0px rgba(0,0,0,0.15);
+    transform: rotate(-3deg);
+    padding: 10px 20px;
+    border: 3px dashed #FFC0CB;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.4);
+    display: inline-block;
+    margin-bottom: 30px; /* Add some space below the H1 */
 }
 
-/* Optional: Add a hover effect for more funk! */
 h1:hover {
-    transform: rotate(5deg) scale(1.05); /* Rotate the other way and slightly enlarge */
-    color: #FFD700; /* Change color on hover - e.g., gold */
+    transform: rotate(3deg) scale(1.03);
+    color: #FFD700;
     text-shadow:
-        3px 3px 0px #40E0D0,   /* Turquoise shadow */
-        6px 6px 0px #00CED1;   /* Darker turquoise shadow */
-}
-.container { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
-h2, h3 { margin-top: 0; }
-label { display: block; margin-bottom: 5px; }
-input[type="text"], input[type="number"], input[type="time"] {
-    width: calc(100% - 22px); /* Adjust for padding and border */
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box; /* Important for width calculation */
-}
-button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-button:hover { background-color: #0056b3; }
-#addedMoviesList li { margin-bottom: 5px; }
-#scheduleResults { margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 4px; }
-        #scheduleResults ol > li { /* Target direct li children of ol inside #scheduleResults */
-    margin-bottom: 20px; /* Adjust as needed */
-    padding-bottom: 10px; /* Optional: if you want some padding before a border */
-    border-bottom: 1px dashed #eee; /* Optional: a light separator line */
+        2px 2px 0px #40E0D0,
+        4px 4px 0px #00CED1;
 }
 
-#scheduleResults ol > li:last-child { /* Remove border from the very last item */
-    border-bottom: none;
-    margin-bottom: 0; /* Optional: remove margin from last item if it looks better */
+.container {
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white for containers */
+    border: 1px solid rgba(204, 204, 204, 0.5);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%; /* Control width of containers */
+    max-width: 700px; /* Max width for readability */
+    text-align: left; /* Align text to left within containers */
 }
 
-/* Style for the "Showing top 5..." message */
-#scheduleResults p {
-    margin-top: 15px;
-    font-style: italic;
+#generateScheduleSection {
+    width: 95%; /* Allow this section to be wider for columns */
+    max-width: 1200px; /* Or even more, depending on how many columns you expect */
+}
+
+
+h2, h3 {
+    margin-top: 0;
+    color: #D14A82; /* A darker pink for subheadings */
+    text-align: center; /* Center H2 and H3 */
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
     color: #555;
 }
 
+input[type="text"],
+input[type="number"],
+input[type="time"],
+textarea#movieShowtimes { /* Assuming you might change it to textarea */
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+/* If you change movieShowtimes to a textarea for multiline input: */
+textarea#movieShowtimes {
+    min-height: 80px; /* Give it some default height */
+    resize: vertical; /* Allow vertical resize */
+    font-family: inherit; /* Use the same font as other inputs */
+}
+
+
+button {
+    display: block; /* Make button block to center it easily */
+    margin: 15px auto 0 auto; /* Center button */
+    padding: 12px 25px;
+    background-color: #FF69B4; /* Funky Pink */
+    color: white;
+    border: none;
+    border-radius: 25px; /* More rounded */
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+button:hover {
+    background-color: #FF1493; /* Darker Pink */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+#addedMoviesList {
+    list-style-type: decimal-leading-zero;
+    padding-left: 30px;
+}
+#addedMoviesList li {
+    margin-bottom: 8px;
+    padding: 5px;
+    border-bottom: 1px dotted #eee;
+}
+#addedMoviesList li:last-child {
+    border-bottom: none;
+}
+
+
+/* --- Schedule Results - Column Layout --- */
+#scheduleResults {
+    margin-top: 15px;
+    padding: 10px; /* Padding for the outer container of schedules */
+    /* background-color: #f0f0f0; /* Light grey background for the results area (optional) */
+    border-radius: 4px;
+}
+
+#scheduleResults ol { /* This OL will be the flex container for schedule columns */
+    display: flex;
+    flex-direction: row; /* Arrange items (marathon schedules) horizontally */
+    flex-wrap: wrap;    /* Allow columns to wrap to the next line if they don't fit */
+    justify-content: flex-start; /* Align columns to the start. Use 'space-around' or 'center' if preferred */
+    gap: 20px;          /* Space between the columns */
+    list-style-type: none; /* Remove default OL numbering, as each column is a unit */
+    padding: 0;         /* Remove default OL padding */
+    margin: 0;          /* Remove default OL margin */
+}
+
+/* Each LI within the OL is now a marathon schedule column */
+#scheduleResults ol > li {
+    flex: 0 1 320px; /* Don't grow, shrink if needed, base width of 320px. Adjust as needed. */
+    /* For a fixed number of columns, e.g., 3 columns: flex: 1 0 calc(33.333% - 20px); (adjust for gap) */
+    border: 1px solid #FFB3C6; /* Border for each column */
+    border-radius: 8px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.85); /* Slightly more opaque */
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
+    margin-bottom: 0; /* Override previous margin as gap handles spacing */
+    border-bottom: none; /* Override previous border as the column has its own border */
+}
+
+#scheduleResults ol > li strong { /* Style for "Marathon Option X" */
+    display: block;
+    font-size: 1.2em;
+    color: #D14A82;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f0e0e5;
+    text-align: center;
+}
+
+
+/* Style for the "Showing top 5..." message */
+#scheduleResults > p { /* Target p directly under scheduleResults */
+    width: 100%; /* Make it take full width to appear below columns if they wrap */
+    margin-top: 20px;
+    font-style: italic;
+    color: #555;
+    text-align: center; /* Center this message */
+}
+
 /* Ensure the parent ul has position relative if we use absolute positioning for pseudo-elements */
-#scheduleResults ol > li ul {
-    position: relative; /* For child pseudo-elements */
-    /* list-style-type: none; /* Already set in JS */
-    /* padding-left: 0; /* Already set in JS */
+#scheduleResults ol > li ul { /* The UL *inside* each marathon column */
+    position: relative;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 10px;
 }
 
 #scheduleResults ol > li ul > li { /* Style for both movie and break LIs within the sub-list */
-    padding-left: 25px; /* Make space for a custom "bullet" or line */
-    position: relative; /* For pseudo-elements */
-    margin-bottom: 8px; /* Spacing between movie/break items */
+    padding-left: 30px; /* Make space for a custom "bullet" or line */
+    position: relative;
+    margin-bottom: 10px;
 }
 
 /* A vertical line on the left of movie/break items */
 #scheduleResults ol > li ul > li::before {
     content: '';
     position: absolute;
-    left: 8px; /* Adjust to align with your "dot" */
+    left: 10px; /* Adjust to align with your "dot" */
     top: 0;
     bottom: 0;
     width: 2px;
-    background-color: #e0e0e0; 
+    background-color: #f0e0e5; /* Lighter pinkish line */
 }
 
 /* A "dot" for each movie item */
 #scheduleResults ol > li ul > li:not(.break-time-item)::after {
-    content: '🎬'; /* Or a filled circle: '\25CF' */
+    content: '🎬';
     position: absolute;
-    left: 0px; /* Adjust to center on the line */
-    top: 0px; /* Adjust vertical alignment */
-    font-size: 1.2em; /* Adjust icon size */
-    color: #007bff;
-    line-height: 1.2; /* Adjust based on font/icon */
+    left: 0px;
+    top: 0px;
+    font-size: 1.3em;
+    color: #FF8FAB; /* Movie icon color */
+    line-height: 1.2;
 }
 
 
 .break-time-item {
     font-weight: bold;
-    color: #28a745; /* Green for break */
-    text-align: center; /* Or keep left-aligned with the dot */
-    padding: 8px 0 8px 25px; /* Keep padding consistent if dots are used */
-    margin: 5px 0;
-    /* border: 1px solid #28a745; */ /* Optional border */
-    /* background-color: #e9f5ec; */ /* Optional light green background */
+    color: #C71585; /* MediumVioletRed for break */
+    text-align: left; /* Keep text aligned with movie titles */
+    padding: 8px 0 8px 30px; /* Keep padding consistent */
+    margin: 8px 0;
 }
 
 /* A "dot" or icon for break items */
 .break-time-item::after {
-    content: '☕'; /* Coffee cup icon for break! */
-    /* content: '\25CB'; /* Open circle for break */
+    content: '☕';
     position: absolute;
-    left: 0px; /* Adjust */
-    top: 0px; /* Adjust */
-    font-size: 1.2em;
-    color: #28a745;
+    left: 0px;
+    top: 0px;
+    font-size: 1.3em;
+    color: #C71585; /* Break icon color */
     line-height: 1.2;
 }
 
 /* To make the line not extend below the last item */
 #scheduleResults ol > li ul > li:last-child::before {
-    height: 1em; /* Or to the height of the content */
+    height: 1.2em; /* Adjust to content height of the icon/text */
 }

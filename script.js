@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = movieTitleInput.value.trim();
         const durationStr = movieDurationInput.value; // Get duration as string first
         const duration = parseDurationToMinutes(durationStr); // Use new parsing function
-        const showtimesRaw = movieShowtimesInput.value.trim();
+        const showtimesRawInput = movieShowtimesInput.value; // Get the raw multiline text
 
         // Basic Validation (we can make this more robust later)
         if (!title) {
@@ -28,15 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter a valid movie duration (e.g., 1hr 30min, 90min, or 90).');
             return; // Stop if duration is not valid
         }
-        if (!showtimesRaw) {
+        if (!showtimesRawInput.trim()) { // Check if the raw input (trimmed) is empty
             alert('Please enter at least one showtime.');
             return; // Stop if no showtimes
         }
 
-        // 2. Process showtimes: split the comma-separated string into an array of strings
-        //    We'll also trim whitespace from each showtime.
-        //    Example: "10:30, 13:15, 16:00" becomes ["10:30", "13:15", "16:00"]
-        const showtimesArray = showtimesRaw.split(',').map(time => time.trim()).filter(time => time !== "");
+        // 2. Process showtimes using the new advanced parser
+        const showtimesArray = parseAdvancedShowtimesInput(showtimesRawInput);
 
         if (showtimesArray.length === 0) {
             alert('Please enter valid showtimes, separated by commas.');
@@ -78,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const listItem = document.createElement('li');
         // Use the new formatting function here too
         const durationFormatted = formatDurationFromMinutes(movie.durationMinutes);
-        listItem.textContent = `${index + 1}. ${movie.title} (${durationFormatted}) - Showtimes: ${movie.showtimes.join(', ')}`;
+        listItem.textContent = `${movie.title} (${durationFormatted}) - Showtimes: ${movie.showtimes.join(', ')}`;
         addedMoviesList.appendChild(listItem);
     });
 }
@@ -178,6 +176,65 @@ document.addEventListener('DOMContentLoaded', () => {
     return parts.join(' ');
     }
 
+    // Helper function to parse raw text input for showtimes
+    // Extracts HH:MM times, converts AM/PM to 24-hour format
+    function parseAdvancedShowtimesInput(rawText) {
+        if (!rawText || typeof rawText !== 'string') {
+            return [];
+        }
+
+        const extractedTimes = [];
+        const lines = rawText.split('\n'); // Split the input by new lines
+
+        // Regex to find times like "HH:MM", "H:MM", optionally followed by AM/PM
+        // It captures:
+        // 1. Hours (1 or 2 digits)
+        // 2. Minutes (2 digits)
+        // 3. AM/PM (optional, case-insensitive)
+        const timeRegex = /(\d{1,2}):(\d{2})\s*(am|pm)?/ig; // i for case-insensitive, g for global (if multiple on one line, though less likely here)
+
+        for (const line of lines) {
+            let match;
+            // Reset lastIndex for global regex if reusing it on new strings (though here we typically expect one match per line)
+            timeRegex.lastIndex = 0;
+            while ((match = timeRegex.exec(line)) !== null) {
+                let hours = parseInt(match[1], 10);
+                let minutes = parseInt(match[2], 10);
+                const ampm = match[3] ? match[3].toLowerCase() : null;
+
+                // Validate initial parsed numbers
+                if (isNaN(hours) || isNaN(minutes)) {
+                    console.warn(`Invalid time numbers found in: "${line}"`);
+                    continue;
+                }
+
+                // AM/PM conversion
+                if (ampm) {
+                    if (hours < 1 || hours > 12) { // With AM/PM, hours should be 1-12
+                        console.warn(`Invalid hour (${hours}) for AM/PM time in: "${line}"`);
+                        continue;
+                    }
+                    if (ampm === 'pm' && hours < 12) {
+                        hours += 12;
+                    } else if (ampm === 'am' && hours === 12) { // 12 AM is midnight (00 hours)
+                        hours = 0;
+                    }
+                }
+
+                // Final validation for 24-hour format
+                if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+                    const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                    if (!extractedTimes.includes(formattedTime)) { // Avoid duplicate times from same input
+                        extractedTimes.push(formattedTime);
+                    }
+                } else {
+                    console.warn(`Time out of valid 24-hour range after conversion: ${hours}:${minutes} from "${line}"`);
+                }
+            }
+        }
+        return extractedTimes.sort(); // Sort them for consistency
+    }
+
     // Main scheduling algorithm using recursive backtracking
     function findMarathonSchedules(allMovies, numMoviesToSchedule, breakTimeMinutes, earliestStartMinutesGlobal) {
         const validSchedules = []; // This will store all found valid marathon combinations
@@ -264,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const schedulesToDisplay = schedulesWithBreaks.slice(0, 5);
+        const schedulesToDisplay = schedulesWithBreaks.slice(0, 6);
         let messageForMoreSchedules = "";
         if (schedulesWithBreaks.length > 5) {
             messageForMoreSchedules = `<p><em>Showing top 5 schedules out of ${schedulesWithBreaks.length} found.</em></p>`;
