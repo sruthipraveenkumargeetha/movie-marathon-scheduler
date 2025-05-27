@@ -245,3 +245,16 @@ button:hover {
 #scheduleResults ol > li ul > li:last-child::before {
     height: 1.2em; /* Adjust to content height of the icon/text */
 }
+
+/* --- Footer Styling --- */
+footer {
+    text-align: center; /* Center the copyright text */
+    padding: 20px;      /* Add some padding around the text */
+    margin-top: 40px;   /* Add some space above the footer, separating it from content */
+    font-size: 0.9em;   /* Make the font slightly smaller */
+    color: #444;       /* A darker grey color, or adjust to fit your theme */
+    /* Optional: Add a subtle top border */
+    /* border-top: 1px solid rgba(204, 204, 204, 0.5); */
+    width: 100%;        /* Ensure it spans the width if body is flex centered */
+    box-sizing: border-box; /* Include padding in the width calculation */
+}
