@@ -258,3 +258,10 @@ footer {
     width: 100%;        /* Ensure it spans the width if body is flex centered */
     box-sizing: border-box; /* Include padding in the width calculation */
 }
+
+#generateScheduleButton {
+    /* This button already gets its 'display: block' and other margins
+       from the general 'button' rule. We are just adding/overriding
+       the bottom margin here. */
+    margin-bottom: 25px; /* Adjust this value (e.g., 20px, 30px, 1.5em) to get the spacing you like */
+}
