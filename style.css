@@ -1,5 +1,62 @@
 /* Basic styling for now - we'll improve this later */
-body { font-family: sans-serif; margin: 20px; }
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 20px; /* Adds some space around the content */
+    text-align: center; /* This centers inline-block elements like our h1 */
+    background: linear-gradient(to top right, #FFCAD4, #F4ACB7, #FF8FAB, #FFB3C6);
+    /* Colors: Lighter, softer pinks and peachy tones */
+    /* For something more subtle: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); */
+    background-size: 200% 200%; /* Can adjust size for animation speed */
+    animation: gradientAnimation 20s ease infinite alternate; /* 'alternate' makes it go back and forth */
+    display: flex; /* Use flexbox for easy centering */
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center (optional, but good for full page) */
+    min-height: 100vh;
+    color: #333;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: left bottom; }
+    100% { background-position: right top; }
+}
+
+h1 {
+    /* --- Centering & Basic Layout --- */
+    /* 'text-align: center;' on the body helps, but for more robust centering of the h1 block itself: */
+    /* display: inline-block; /* Allows text-align on parent to work well and transform to apply cleanly */
+                            /* Using flex on body makes this less critical */
+
+    /* --- Funky Font Style --- */
+    font-family: 'Comic Sans MS', 'Brush Script MT', cursive; /* A classic "funky" or playful font */
+    font-size: 4.5em; /* Make it BIG! Adjust as needed */
+    font-weight: bold;
+    color: #6A0DAD; /* A vibrant purple, contrasts well with pink */
+
+    /* --- Funky Text Effects --- */
+    text-shadow:
+        3px 3px 0px #FF69B4,   /* Hot pink shadow, slightly offset */
+        6px 6px 0px #FF1493,   /* Deeper pink shadow, more offset */
+        9px 9px 0px rgba(0,0,0,0.2); /* Subtle dark shadow for depth */
+
+    /* --- Funky Transformations & Spacing --- */
+    transform: rotate(-5deg); /* Give it a slight, playful tilt */
+    letter-spacing: 2px; /* Add a bit of space between letters */
+    padding: 15px 25px; /* Add some padding inside the h1 */
+    border: 4px dashed #FFC0CB; /* A dashed pink border (lighter pink) */
+    border-radius: 15px; /* Rounded corners for the border */
+    background-color: rgba(255, 255, 255, 0.3); /* A slightly transparent white background for the h1 */
+    display: inline-block; /* Important for transform and padding to look right */
+}
+
+/* Optional: Add a hover effect for more funk! */
+h1:hover {
+    transform: rotate(5deg) scale(1.05); /* Rotate the other way and slightly enlarge */
+    color: #FFD700; /* Change color on hover - e.g., gold */
+    text-shadow:
+        3px 3px 0px #40E0D0,   /* Turquoise shadow */
+        6px 6px 0px #00CED1;   /* Darker turquoise shadow */
+}
 .container { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
 h2, h3 { margin-top: 0; }
 label { display: block; margin-bottom: 5px; }
