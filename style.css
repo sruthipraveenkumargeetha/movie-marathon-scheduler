@@ -177,6 +177,35 @@ button:hover {
     transform: scale(1.1); /* Slightly enlarge on hover */
 }
 
+/* style.css additions for copy button */
+.copy-schedule-button {
+    background-color: #FFD700; /* Goldish yellow */
+    color: #333;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px; /* Space from title */
+    margin-left: auto; /* Push to right, if strong title is flex item */
+    margin-right: auto; /* Center if it's the only item */
+    display: block; /* Make it a block to control margin auto for centering */
+    width: fit-content; /* Only take content width */
+}
+
+.copy-schedule-button:hover {
+    background-color: #FFC107; /* Darker yellow */
+    transform: translateY(-1px);
+}
+
+/* Adjust the strong title to allow button placement next to it or below it */
+#scheduleResults ol > li strong {
+    display: block; /* Ensure it takes full width if button is block */
+    /* flex-grow: 1; /* If you wanted them on the same line, would need display: flex on li */
+}
+
 
 /* --- Schedule Results - Column Layout --- */
 #scheduleResults {

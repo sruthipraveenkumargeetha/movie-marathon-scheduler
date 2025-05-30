@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function findNextMovie(currentSchedule, usedMovieOriginalIds, lastMovieEndTime) {
             // BASE CASE: If we've selected the desired number of movies
             if (currentSchedule.length === numMoviesToSchedule) {
-                // --- NEW: AND all mandatory movies are included ---
+                // AND all mandatory movies are included
                 const currentScheduleMovieOriginalIds = currentSchedule.map(slot => slot.originalId);
                 const allMandatoryPresent = mandatoryMovieIds.every(id => currentScheduleMovieOriginalIds.includes(id));
 
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // --- NEW: Pruning if not enough slots for remaining mandatory movies ---
+            // Pruning if not enough slots for remaining mandatory movies
             const mandatoryMoviesInCurrentScheduleCount = currentSchedule.filter(slot => mandatoryMovieIds.includes(slot.originalId)).length;
             const mandatoryMoviesStillNeeded = mandatoryMovieIds.length - mandatoryMoviesInCurrentScheduleCount;
             if (numMoviesToSchedule - currentSchedule.length < mandatoryMoviesStillNeeded) {
@@ -326,12 +326,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return validSchedules;
     }
 
-    // --- MODIFIED: displaySchedules Function ---
-    function displaySchedules(schedulesWithBreaks, mandatoryMoviesWereAttempted) { // Added new parameter
+    // --- MODIFIED: displaySchedules Function (with Copy to Clipboard) ---
+    function displaySchedules(schedulesWithBreaks, mandatoryMoviesWereAttempted) {
         scheduleResultsDiv.innerHTML = '';
 
         if (!schedulesWithBreaks || schedulesWithBreaks.length === 0) {
-            // --- NEW: Customized message for mandatory movies ---
             let message = 'No valid marathon schedules found with the given criteria. Try adjusting preferences or adding more movie showtimes.';
             if (mandatoryMoviesWereAttempted) {
                 message = 'No valid marathon schedules found that include all your mandatory movies with the given constraints. Try different showtimes, adjust break times, change which movies are mandatory, or ensure mandatory movies have valid showtimes.';
@@ -340,15 +339,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Limit to top 5 (or 6 based on your previous slice)
-        const schedulesToDisplay = schedulesWithBreaks.slice(0, 6); // Consistent with original intent of top 5
+        const schedulesToDisplay = schedulesWithBreaks.slice(0, 6);
         let messageForMoreSchedules = "";
         if (schedulesWithBreaks.length > 5) {
-            messageForMoreSchedules = `<p><em>Showing top 5 schedules out of ${schedulesWithBreaks.length} found.</em></p>`;
+            messageForMoreSchedules = `<p><em>Showing top 6 schedules out of ${schedulesWithBreaks.length} found.</em></p>`;
         }
 
         const ol = document.createElement('ol');
-        // ol.start = 1; // Not strictly needed if CSS handles numbering/appearance
 
         schedulesToDisplay.forEach((scheduleData, index) => {
             const schedule = scheduleData.movies;
@@ -360,13 +357,31 @@ document.addEventListener('DOMContentLoaded', () => {
                  scheduleTitleText += ` (Total Break: ${formatDurationFromMinutes(totalBreakTime)})`;
             }
             const strongTitle = document.createElement('strong');
-            strongTitle.innerHTML = scheduleTitleText; // Use innerHTML if title might contain HTML entities from movie titles
+            strongTitle.innerHTML = scheduleTitleText;
             scheduleLi.appendChild(strongTitle);
-            
+
+            // --- NEW: Copy to Clipboard Button ---
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'Copy Schedule';
+            copyButton.classList.add('copy-schedule-button'); // Add a class for styling
+            copyButton.title = `Copy Marathon Option ${index + 1} to clipboard`;
+            copyButton.addEventListener('click', () => {
+                const scheduleText = formatScheduleForCopy(scheduleData, index + 1);
+                navigator.clipboard.writeText(scheduleText)
+                    .then(() => {
+                        copyButton.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy Schedule';
+                        }, 2000); // Reset text after 2 seconds
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy schedule: ', err);
+                        alert('Failed to copy schedule. Please try again or copy manually.');
+                    });
+            });
+            scheduleLi.appendChild(copyButton); // Add the copy button
+
             const individualItemsUl = document.createElement('ul');
-            // CSS should handle list-style-type and padding for ul inside #scheduleResults ol > li ul
-            // individualItemsUl.style.listStyleType = "none";
-            // individualItemsUl.style.paddingLeft = "0";
 
             schedule.forEach((slot, movieIndex) => {
                 const movieLi = document.createElement('li');
@@ -393,7 +408,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (messageForMoreSchedules) {
             scheduleResultsDiv.insertAdjacentHTML('beforeend', messageForMoreSchedules);
         }
-        // console.log("Displayed Top Schedules (max 5, revised breaks):", schedulesToDisplay);
+    }
+
+
+    // --- NEW: Helper function to format schedule for copying ---
+    function formatScheduleForCopy(scheduleData, optionNumber) {
+        const schedule = scheduleData.movies;
+        const totalBreakTime = scheduleData.totalBreakTime;
+        let formattedText = `--- Movie Marathon Option ${optionNumber} ---\n`;
+        if (schedule.length > 1 || totalBreakTime > 0) {
+            formattedText += `Total Break Time: ${formatDurationFromMinutes(totalBreakTime)}\n\n`;
+        }
+
+        schedule.forEach((slot, movieIndex) => {
+            const startTime = minutesToTime(slot.chosenShowtimeMinutes);
+            const endTime = minutesToTime(slot.chosenShowtimeMinutes + slot.durationMinutes);
+            const movieDurationFormatted = formatDurationFromMinutes(slot.durationMinutes);
+            formattedText += `${slot.title} (${movieDurationFormatted}): ${startTime} - ${endTime}\n`;
+
+            if (movieIndex < schedule.length - 1) {
+                const nextSlot = schedule[movieIndex + 1];
+                const actualBreakMinutes = nextSlot.chosenShowtimeMinutes - (slot.chosenShowtimeMinutes + slot.durationMinutes);
+                formattedText += `    --- Break: ${formatDurationFromMinutes(actualBreakMinutes)} ---\n`;
+            }
+        });
+        formattedText += `\n`; // Add an extra newline for separation if multiple options are copied manually
+        return formattedText;
     }
 
 
