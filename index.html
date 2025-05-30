@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Marathon Scheduler</title>
     <link rel="stylesheet" href="style.css">
-    <!-- FAVICON LINK FOR POPCORN ICON -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -48,7 +47,6 @@
     <div class="container" id="currentMoviesSection">
         <h2>Movies Added for Marathon</h2>
         <ul id="addedMoviesList">
-            <!-- Movies added by JavaScript will appear here -->
             <li><em>No movies added yet.</em></li>
         </ul>
     </div>
@@ -57,17 +55,14 @@
         <button id="generateScheduleButton">Generate Marathon Schedule</button>
         <h3>Generated Schedule(s):</h3>
         <div id="scheduleResults">
-            <!-- Schedule results will appear here -->
             <p><em>Schedule will be displayed here once generated.</em></p>
         </div>
     </div>
     <script src="script.js"></script>
-        <!-- NEW FOOTER SECTION -->
-    <footer>
+        <footer>
         <p>© <span id="currentYear"></span> Sruthi Praveen Kumar Geetha / Movie Marathon Scheduler. All Rights Reserved.</p>
     </footer>
 
-    <!-- SCRIPT TO SET DYNAMIC YEAR - Place after the footer content -->
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>

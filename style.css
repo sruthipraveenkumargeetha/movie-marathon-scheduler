@@ -123,13 +123,18 @@ button:hover {
     list-style-type: decimal-leading-zero;
     padding-left: 30px;
 }
+
+/* Adjust li display to accommodate the button */
 #addedMoviesList li {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Vertically align items in the li */
+    justify-content: flex-start; /* Align items to the start */
+    gap: 8px; /* Space between items (checkbox, text, button) */
     margin-bottom: 8px;
     padding: 5px;
     border-bottom: 1px dotted #eee;
-    display: flex; /* Helps align checkbox and text */
-    align-items: center; /* Vertically align items in the li */
 }
+
 #addedMoviesList li:last-child {
     border-bottom: none;
 }
@@ -139,6 +144,37 @@ button:hover {
     width: 18px;  /* Example size */
     height: 18px; /* Example size */
     cursor: pointer;
+}
+
+#addedMoviesList li span {
+    flex-grow: 1; /* Allow the text span to take up available space */
+}
+
+/* style.css additions for delete button */
+.delete-movie-button {
+    background-color: #FF69B4; /* Funky Pink */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Make it round */
+    width: 25px; /* Fixed width */
+    height: 25px; /* Fixed height */
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-left: auto; /* Push the button to the right */
+    flex-shrink: 0; /* Prevent it from shrinking */
+    padding: 0; /* Remove default padding */
+    line-height: 1; /* Center the 'X' vertically */
+    display: flex; /* Use flex to center 'X' */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Smaller shadow */
+}
+
+.delete-movie-button:hover {
+    background-color: #FF1493; /* Darker Pink */
+    transform: scale(1.1); /* Slightly enlarge on hover */
 }
 
 
@@ -274,4 +310,3 @@ footer {
        the bottom margin here. */
     margin-bottom: 25px; /* Adjust this value (e.g., 20px, 30px, 1.5em) to get the spacing you like */
 }
-

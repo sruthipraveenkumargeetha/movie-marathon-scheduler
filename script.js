@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Current moviesForMarathon:', moviesForMarathon);
     });
 
-    // --- MODIFIED: renderAddedMovies Function ---
+    // --- MODIFIED: renderAddedMovies Function (with delete button) ---
     function renderAddedMovies() {
         addedMoviesList.innerHTML = '';
 
@@ -80,18 +80,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        moviesForMarathon.forEach((movie) => { // Removed 'index' as it's not directly used for display text now
+        moviesForMarathon.forEach((movie) => {
             const listItem = document.createElement('li');
             listItem.dataset.movieId = movie.id; // Store movie ID for easy access
 
-            // --- NEW: Checkbox for mandatory status ---
+            // Checkbox for mandatory status
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.checked = movie.isMandatory;
             checkbox.title = "Mark as mandatory for marathon";
             checkbox.style.marginRight = '10px'; // Basic styling
             checkbox.addEventListener('change', (event) => {
-                // Find movie by ID (safer than index if list order changes or items are removed)
                 const movieToUpdate = moviesForMarathon.find(m => m.id === movie.id);
                 if (movieToUpdate) {
                     movieToUpdate.isMandatory = event.target.checked;
@@ -100,12 +99,24 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const durationFormatted = formatDurationFromMinutes(movie.durationMinutes);
-            const textNode = document.createTextNode(
-                `${movie.title} (${durationFormatted}) - Showtimes: ${movie.showtimes.join(', ')}`
-            );
+            const textContent = document.createElement('span'); // Use a span to wrap the text
+            textContent.textContent = `${movie.title} (${durationFormatted}) - Showtimes: ${movie.showtimes.join(', ')}`;
 
-            listItem.appendChild(checkbox); // Add checkbox first
-            listItem.appendChild(textNode);  // Then the movie text
+            // --- NEW: Delete Button ---
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = '✖'; // A simple 'X' or 'Delete'
+            deleteButton.classList.add('delete-movie-button'); // Add a class for styling
+            deleteButton.title = `Remove "${movie.title}"`;
+            deleteButton.addEventListener('click', () => {
+                // Filter out the movie with the matching ID
+                moviesForMarathon = moviesForMarathon.filter(m => m.id !== movie.id);
+                renderAddedMovies(); // Re-render the list
+                console.log('Movie removed. Current moviesForMarathon:', moviesForMarathon);
+            });
+
+            listItem.appendChild(checkbox);
+            listItem.appendChild(textContent); // Append the text span
+            listItem.appendChild(deleteButton); // Append the delete button
             addedMoviesList.appendChild(listItem);
         });
     }
@@ -330,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Limit to top 5 (or 6 based on your previous slice)
-        const schedulesToDisplay = schedulesWithBreaks.slice(0, 5); // Consistent with original intent of top 5
+        const schedulesToDisplay = schedulesWithBreaks.slice(0, 6); // Consistent with original intent of top 5
         let messageForMoreSchedules = "";
         if (schedulesWithBreaks.length > 5) {
             messageForMoreSchedules = `<p><em>Showing top 5 schedules out of ${schedulesWithBreaks.length} found.</em></p>`;
